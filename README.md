@@ -35,14 +35,14 @@ $ pnpm install
 ## Running the app
 
 ```bash
-# development
+# all server 
 $ pnpm run start
 
-# watch mode
-$ pnpm run start:dev
+# low-code-server
+$ pnpm run start:lowcode
 
-# production mode
-$ pnpm run start:prod
+# devops
+$ pnpm run start:devops
 ```
 
 ## Test

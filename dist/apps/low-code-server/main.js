@@ -1,48 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-/******/ 	var __webpack_modules__ = ([
-/* 0 */,
-/* 1 */
-/***/ ((module) => {
+/******/ 	var __webpack_modules__ = ({
 
-module.exports = require("@nestjs/core");
-
-/***/ }),
-/* 2 */
-/***/ ((module) => {
-
-module.exports = require("@nestjs/common");
-
-/***/ }),
-/* 3 */
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AppModule = void 0;
-const common_1 = __webpack_require__(2);
-const app_controller_1 = __webpack_require__(4);
-const app_service_1 = __webpack_require__(5);
-let AppModule = class AppModule {
-};
-exports.AppModule = AppModule;
-exports.AppModule = AppModule = __decorate([
-    (0, common_1.Module)({
-        imports: [],
-        controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
-    })
-], AppModule);
-
-
-/***/ }),
-/* 4 */
+/***/ "./apps/low-code-server/src/app.controller.ts":
+/*!****************************************************!*\
+  !*** ./apps/low-code-server/src/app.controller.ts ***!
+  \****************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -58,8 +21,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
-const common_1 = __webpack_require__(2);
-const app_service_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -71,6 +34,9 @@ let AppController = class AppController {
         return this.appService.findAll();
     }
     ;
+    findAll2() {
+        return 'chencs';
+    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -81,19 +47,65 @@ __decorate([
 ], AppController.prototype, "getHello", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, common_1.Version)('1'),
+    (0, common_1.Version)([common_1.VERSION_NEUTRAL, '1']),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", String)
 ], AppController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.Version)('2'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", String)
+], AppController.prototype, "findAll2", null);
 exports.AppController = AppController = __decorate([
-    (0, common_1.Controller)(),
+    (0, common_1.Controller)({
+        path: 'user',
+        version: '1',
+    }),
     __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
 ], AppController);
 
 
 /***/ }),
-/* 5 */
+
+/***/ "./apps/low-code-server/src/app.module.ts":
+/*!************************************************!*\
+  !*** ./apps/low-code-server/src/app.module.ts ***!
+  \************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppModule = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const app_controller_1 = __webpack_require__(/*! ./app.controller */ "./apps/low-code-server/src/app.controller.ts");
+const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
+let AppModule = class AppModule {
+};
+exports.AppModule = AppModule;
+exports.AppModule = AppModule = __decorate([
+    (0, common_1.Module)({
+        imports: [],
+        controllers: [app_controller_1.AppController],
+        providers: [app_service_1.AppService],
+    })
+], AppModule);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/app.service.ts":
+/*!*************************************************!*\
+  !*** ./apps/low-code-server/src/app.service.ts ***!
+  \*************************************************/
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -105,7 +117,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppService = void 0;
-const common_1 = __webpack_require__(2);
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 let AppService = class AppService {
     getHello() {
         return 'Hello World!';
@@ -122,8 +134,29 @@ exports.AppService = AppService = __decorate([
 ], AppService);
 
 
+/***/ }),
+
+/***/ "@nestjs/common":
+/*!*********************************!*\
+  !*** external "@nestjs/common" ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/common");
+
+/***/ }),
+
+/***/ "@nestjs/core":
+/*!*******************************!*\
+  !*** external "@nestjs/core" ***!
+  \*******************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/core");
+
 /***/ })
-/******/ 	]);
+
+/******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
@@ -154,15 +187,19 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 var exports = __webpack_exports__;
+/*!******************************************!*\
+  !*** ./apps/low-code-server/src/main.ts ***!
+  \******************************************/
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __webpack_require__(1);
-const common_1 = __webpack_require__(2);
-const app_module_1 = __webpack_require__(3);
+const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const app_module_1 = __webpack_require__(/*! ./app.module */ "./apps/low-code-server/src/app.module.ts");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableVersioning({
-        type: common_1.VersioningType.URI
+        defaultVersion: [common_1.VERSION_NEUTRAL, '1', '2'],
+        type: common_1.VersioningType.URI,
     });
     await app.listen(3000);
 }

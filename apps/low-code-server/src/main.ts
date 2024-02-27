@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { VersioningType } from '@nestjs/common';
+import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
@@ -8,9 +8,11 @@ async function bootstrap() {
 
   // 接口版本化管理
   app.enableVersioning({
-    type: VersioningType.URI
+    // defaultVersion: '1',
+    defaultVersion: [VERSION_NEUTRAL, '1', '2'],
+    type: VersioningType.URI,
   });
-  
+
   await app.listen(3000);
 }
 bootstrap();
