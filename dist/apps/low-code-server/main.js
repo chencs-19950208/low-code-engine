@@ -23,6 +23,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
+const business_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/business.exception.filter */ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -36,6 +37,24 @@ let AppController = class AppController {
     ;
     findAll2() {
         return 'chencs';
+    }
+    ;
+    findError() {
+        const a = {};
+        console.log(a.b.c);
+        return this.appService.getHello();
+    }
+    ;
+    findBusinessError() {
+        const a = {};
+        try {
+            console.log(a.b.c);
+        }
+        catch (e) {
+            throw new business_exception_filter_1.BusinessException('sorry, 您的参数貌似出现了问题');
+        }
+        ;
+        return this.appService.findAll();
     }
 };
 exports.AppController = AppController;
@@ -59,11 +78,22 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "findAll2", null);
+__decorate([
+    (0, common_1.Get)('findError'),
+    (0, common_1.Version)([common_1.VERSION_NEUTRAL, '1']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "findError", null);
+__decorate([
+    (0, common_1.Get)('findBusinessError'),
+    (0, common_1.Version)([common_1.VERSION_NEUTRAL, '1']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "findBusinessError", null);
 exports.AppController = AppController = __decorate([
-    (0, common_1.Controller)({
-        path: 'user',
-        version: '1',
-    }),
+    (0, common_1.Controller)(),
     __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
 ], AppController);
 
@@ -136,6 +166,210 @@ exports.AppService = AppService = __decorate([
 
 /***/ }),
 
+/***/ "./apps/low-code-server/src/common/exceptions/base.exception.filter.ts":
+/*!*****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/base.exception.filter.ts ***!
+  \*****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AllExceptionsFilter = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+let AllExceptionsFilter = class AllExceptionsFilter {
+    catch(exception, host) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+        const request = ctx.getRequest();
+        response.status(common_1.HttpStatus.SERVICE_UNAVAILABLE).json({
+            statusCode: common_1.HttpStatus.SERVICE_UNAVAILABLE,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            message: new common_1.ServiceUnavailableException().getResponse()
+        });
+    }
+};
+exports.AllExceptionsFilter = AllExceptionsFilter;
+exports.AllExceptionsFilter = AllExceptionsFilter = __decorate([
+    (0, common_1.Catch)()
+], AllExceptionsFilter);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/exceptions/business.error.codes.ts":
+/*!****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/business.error.codes.ts ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BUSINESS_ERROR_CODE = void 0;
+exports.BUSINESS_ERROR_CODE = {
+    COMMON: 10001,
+    TOKEN_INVALID: 10002,
+    ACCESS_FORBIDDEN: 10003,
+    PERMISSION_DISABLED: 10003,
+    USER_DISABLED: 10004
+};
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts":
+/*!*********************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/business.exception.filter.ts ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BusinessException = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const business_error_codes_1 = __webpack_require__(/*! ./business.error.codes */ "./apps/low-code-server/src/common/exceptions/business.error.codes.ts");
+class BusinessException extends common_1.HttpException {
+    constructor(err) {
+        if (typeof err === 'string') {
+            err = {
+                code: business_error_codes_1.BUSINESS_ERROR_CODE.COMMON,
+                message: err,
+            };
+        }
+        super(err, common_1.HttpStatus.OK);
+    }
+    ;
+    static throwForbidden() {
+        throw new BusinessException({
+            code: business_error_codes_1.BUSINESS_ERROR_CODE.ACCESS_FORBIDDEN,
+            message: 'sorry, 您暂无权限'
+        });
+    }
+    ;
+}
+exports.BusinessException = BusinessException;
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts":
+/*!*****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/http.exception.filter.ts ***!
+  \*****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HttpExceptionFilter = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const business_exception_filter_1 = __webpack_require__(/*! ./business.exception.filter */ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts");
+let HttpExceptionFilter = class HttpExceptionFilter {
+    catch(exception, host) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+        const request = ctx.getRequest();
+        const status = exception.getStatus();
+        if (exception instanceof business_exception_filter_1.BusinessException) {
+            const error = exception.getResponse();
+            response.status(common_1.HttpStatus.OK).json({
+                data: null,
+                status: error['code'],
+                extra: {},
+                message: error['message'],
+                success: false,
+            });
+            return;
+        }
+        response.status(status).json({
+            statusCode: status,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            message: exception.getResponse(),
+        });
+    }
+};
+exports.HttpExceptionFilter = HttpExceptionFilter;
+exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
+    (0, common_1.Catch)(common_1.HttpException)
+], HttpExceptionFilter);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/interceptors/transform.interceptor.ts":
+/*!*******************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/interceptors/transform.interceptor.ts ***!
+  \*******************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TransformInterceptor = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const operators_1 = __webpack_require__(/*! rxjs/operators */ "rxjs/operators");
+;
+let TransformInterceptor = class TransformInterceptor {
+    intercept(context, next) {
+        return next.handle().pipe((0, operators_1.map)((data) => ({
+            data,
+            status: 0,
+            extra: {},
+            message: 'success',
+            success: true
+        })));
+    }
+};
+exports.TransformInterceptor = TransformInterceptor;
+exports.TransformInterceptor = TransformInterceptor = __decorate([
+    (0, common_1.Injectable)()
+], TransformInterceptor);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/doc.ts":
+/*!*****************************************!*\
+  !*** ./apps/low-code-server/src/doc.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.generateDocument = void 0;
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const packageConfig = __webpack_require__(/*! ../package.json */ "./apps/low-code-server/package.json");
+const generateDocument = (app) => {
+    const options = new swagger_1.DocumentBuilder()
+        .setTitle(packageConfig.name)
+        .setDescription(packageConfig.description)
+        .setVersion(packageConfig.version)
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, options);
+    swagger_1.SwaggerModule.setup('/api/doc', app, document);
+};
+exports.generateDocument = generateDocument;
+
+
+/***/ }),
+
 /***/ "@nestjs/common":
 /*!*********************************!*\
   !*** external "@nestjs/common" ***!
@@ -153,6 +387,36 @@ module.exports = require("@nestjs/common");
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
+
+/***/ }),
+
+/***/ "@nestjs/swagger":
+/*!**********************************!*\
+  !*** external "@nestjs/swagger" ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/swagger");
+
+/***/ }),
+
+/***/ "rxjs/operators":
+/*!*********************************!*\
+  !*** external "rxjs/operators" ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = require("rxjs/operators");
+
+/***/ }),
+
+/***/ "./apps/low-code-server/package.json":
+/*!*******************************************!*\
+  !*** ./apps/low-code-server/package.json ***!
+  \*******************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"name":"low-code-server","version":"0.0.1","description":"低代码基础服务","scripts":{"dev":"cd .. && pnpm start:lowcode"}}');
 
 /***/ })
 
@@ -194,13 +458,20 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const transform_interceptor_1 = __webpack_require__(/*! ./common/interceptors/transform.interceptor */ "./apps/low-code-server/src/common/interceptors/transform.interceptor.ts");
+const base_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/base.exception.filter */ "./apps/low-code-server/src/common/exceptions/base.exception.filter.ts");
+const http_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/http.exception.filter */ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts");
+const doc_1 = __webpack_require__(/*! ./doc */ "./apps/low-code-server/src/doc.ts");
 const app_module_1 = __webpack_require__(/*! ./app.module */ "./apps/low-code-server/src/app.module.ts");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
+    app.useGlobalFilters(new base_exception_filter_1.AllExceptionsFilter(), new http_exception_filter_1.HttpExceptionFilter());
     app.enableVersioning({
         defaultVersion: [common_1.VERSION_NEUTRAL, '1', '2'],
         type: common_1.VersioningType.URI,
     });
+    (0, doc_1.generateDocument)(app);
     await app.listen(3000);
 }
 bootstrap();
