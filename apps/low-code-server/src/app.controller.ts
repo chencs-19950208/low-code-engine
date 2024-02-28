@@ -23,5 +23,5 @@ export class AppController {
   @Version('2')
   findAll2(): string {
     return 'chencs'
-  }
+  };
 }

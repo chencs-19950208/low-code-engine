@@ -37,6 +37,7 @@ let AppController = class AppController {
     findAll2() {
         return 'chencs';
     }
+    ;
 };
 exports.AppController = AppController;
 __decorate([
@@ -136,6 +137,118 @@ exports.AppService = AppService = __decorate([
 
 /***/ }),
 
+/***/ "./apps/low-code-server/src/common/exceptions/base.exception.filter.ts":
+/*!*****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/base.exception.filter.ts ***!
+  \*****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AllExceptionsFilter = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+let AllExceptionsFilter = class AllExceptionsFilter {
+    catch(exception, host) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+        const request = ctx.getRequest();
+        response.status(common_1.HttpStatus.SERVICE_UNAVAILABLE).json({
+            statusCode: common_1.HttpStatus.SERVICE_UNAVAILABLE,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            message: new common_1.ServiceUnavailableException().getResponse()
+        });
+    }
+};
+exports.AllExceptionsFilter = AllExceptionsFilter;
+exports.AllExceptionsFilter = AllExceptionsFilter = __decorate([
+    (0, common_1.Catch)()
+], AllExceptionsFilter);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts":
+/*!*****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/http.exception.filter.ts ***!
+  \*****************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.HttpExceptionFilter = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+let HttpExceptionFilter = class HttpExceptionFilter {
+    catch(exception, host) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+        const request = ctx.getRequest();
+        const status = exception.getStatus();
+        response.status(status).json({
+            statusCode: status,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            message: exception.getResponse(),
+        });
+    }
+};
+exports.HttpExceptionFilter = HttpExceptionFilter;
+exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
+    (0, common_1.Catch)(common_1.HttpException)
+], HttpExceptionFilter);
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/interceptors/transform.interceptor.ts":
+/*!*******************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/interceptors/transform.interceptor.ts ***!
+  \*******************************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TransformInterceptor = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const operators_1 = __webpack_require__(/*! rxjs/operators */ "rxjs/operators");
+;
+let TransformInterceptor = class TransformInterceptor {
+    intercept(context, next) {
+        return next.handle().pipe((0, operators_1.map)((data) => ({
+            data,
+            status: 0,
+            extra: {},
+            message: 'success',
+            success: true
+        })));
+    }
+};
+exports.TransformInterceptor = TransformInterceptor;
+exports.TransformInterceptor = TransformInterceptor = __decorate([
+    (0, common_1.Injectable)()
+], TransformInterceptor);
+
+
+/***/ }),
+
 /***/ "@nestjs/common":
 /*!*********************************!*\
   !*** external "@nestjs/common" ***!
@@ -153,6 +266,16 @@ module.exports = require("@nestjs/common");
 /***/ ((module) => {
 
 module.exports = require("@nestjs/core");
+
+/***/ }),
+
+/***/ "rxjs/operators":
+/*!*********************************!*\
+  !*** external "rxjs/operators" ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = require("rxjs/operators");
 
 /***/ })
 
@@ -194,6 +317,9 @@ var exports = __webpack_exports__;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const transform_interceptor_1 = __webpack_require__(/*! ./common/interceptors/transform.interceptor */ "./apps/low-code-server/src/common/interceptors/transform.interceptor.ts");
+const base_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/base.exception.filter */ "./apps/low-code-server/src/common/exceptions/base.exception.filter.ts");
+const http_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/http.exception.filter */ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts");
 const app_module_1 = __webpack_require__(/*! ./app.module */ "./apps/low-code-server/src/app.module.ts");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -201,6 +327,8 @@ async function bootstrap() {
         defaultVersion: [common_1.VERSION_NEUTRAL, '1', '2'],
         type: common_1.VersioningType.URI,
     });
+    app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
+    app.useGlobalFilters(new base_exception_filter_1.AllExceptionsFilter(), new http_exception_filter_1.HttpExceptionFilter());
     await app.listen(3000);
 }
 bootstrap();
