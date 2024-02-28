@@ -345,6 +345,31 @@ exports.TransformInterceptor = TransformInterceptor = __decorate([
 
 /***/ }),
 
+/***/ "./apps/low-code-server/src/doc.ts":
+/*!*****************************************!*\
+  !*** ./apps/low-code-server/src/doc.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.generateDocument = void 0;
+const swagger_1 = __webpack_require__(/*! @nestjs/swagger */ "@nestjs/swagger");
+const packageConfig = __webpack_require__(/*! ../package.json */ "./apps/low-code-server/package.json");
+const generateDocument = (app) => {
+    const options = new swagger_1.DocumentBuilder()
+        .setTitle(packageConfig.name)
+        .setDescription(packageConfig.description)
+        .setVersion(packageConfig.version)
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, options);
+    swagger_1.SwaggerModule.setup('/api/doc', app, document);
+};
+exports.generateDocument = generateDocument;
+
+
+/***/ }),
+
 /***/ "@nestjs/common":
 /*!*********************************!*\
   !*** external "@nestjs/common" ***!
@@ -365,6 +390,16 @@ module.exports = require("@nestjs/core");
 
 /***/ }),
 
+/***/ "@nestjs/swagger":
+/*!**********************************!*\
+  !*** external "@nestjs/swagger" ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/swagger");
+
+/***/ }),
+
 /***/ "rxjs/operators":
 /*!*********************************!*\
   !*** external "rxjs/operators" ***!
@@ -372,6 +407,16 @@ module.exports = require("@nestjs/core");
 /***/ ((module) => {
 
 module.exports = require("rxjs/operators");
+
+/***/ }),
+
+/***/ "./apps/low-code-server/package.json":
+/*!*******************************************!*\
+  !*** ./apps/low-code-server/package.json ***!
+  \*******************************************/
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"name":"low-code-server","version":"0.0.1","description":"低代码基础服务","scripts":{"dev":"cd .. && pnpm start:lowcode"}}');
 
 /***/ })
 
@@ -416,15 +461,17 @@ const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const transform_interceptor_1 = __webpack_require__(/*! ./common/interceptors/transform.interceptor */ "./apps/low-code-server/src/common/interceptors/transform.interceptor.ts");
 const base_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/base.exception.filter */ "./apps/low-code-server/src/common/exceptions/base.exception.filter.ts");
 const http_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/http.exception.filter */ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts");
+const doc_1 = __webpack_require__(/*! ./doc */ "./apps/low-code-server/src/doc.ts");
 const app_module_1 = __webpack_require__(/*! ./app.module */ "./apps/low-code-server/src/app.module.ts");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
+    app.useGlobalFilters(new base_exception_filter_1.AllExceptionsFilter(), new http_exception_filter_1.HttpExceptionFilter());
     app.enableVersioning({
         defaultVersion: [common_1.VERSION_NEUTRAL, '1', '2'],
         type: common_1.VersioningType.URI,
     });
-    app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
-    app.useGlobalFilters(new base_exception_filter_1.AllExceptionsFilter(), new http_exception_filter_1.HttpExceptionFilter());
+    (0, doc_1.generateDocument)(app);
     await app.listen(3000);
 }
 bootstrap();
