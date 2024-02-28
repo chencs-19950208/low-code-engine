@@ -23,6 +23,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
+const business_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/business.exception.filter */ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
@@ -38,6 +39,23 @@ let AppController = class AppController {
         return 'chencs';
     }
     ;
+    findError() {
+        const a = {};
+        console.log(a.b.c);
+        return this.appService.getHello();
+    }
+    ;
+    findBusinessError() {
+        const a = {};
+        try {
+            console.log(a.b.c);
+        }
+        catch (e) {
+            throw new business_exception_filter_1.BusinessException('sorry, 您的参数貌似出现了问题');
+        }
+        ;
+        return this.appService.findAll();
+    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -60,11 +78,22 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "findAll2", null);
+__decorate([
+    (0, common_1.Get)('findError'),
+    (0, common_1.Version)([common_1.VERSION_NEUTRAL, '1']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "findError", null);
+__decorate([
+    (0, common_1.Get)('findBusinessError'),
+    (0, common_1.Version)([common_1.VERSION_NEUTRAL, '1']),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "findBusinessError", null);
 exports.AppController = AppController = __decorate([
-    (0, common_1.Controller)({
-        path: 'user',
-        version: '1',
-    }),
+    (0, common_1.Controller)(),
     __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
 ], AppController);
 
@@ -174,6 +203,61 @@ exports.AllExceptionsFilter = AllExceptionsFilter = __decorate([
 
 /***/ }),
 
+/***/ "./apps/low-code-server/src/common/exceptions/business.error.codes.ts":
+/*!****************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/business.error.codes.ts ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BUSINESS_ERROR_CODE = void 0;
+exports.BUSINESS_ERROR_CODE = {
+    COMMON: 10001,
+    TOKEN_INVALID: 10002,
+    ACCESS_FORBIDDEN: 10003,
+    PERMISSION_DISABLED: 10003,
+    USER_DISABLED: 10004
+};
+
+
+/***/ }),
+
+/***/ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts":
+/*!*********************************************************************************!*\
+  !*** ./apps/low-code-server/src/common/exceptions/business.exception.filter.ts ***!
+  \*********************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BusinessException = void 0;
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const business_error_codes_1 = __webpack_require__(/*! ./business.error.codes */ "./apps/low-code-server/src/common/exceptions/business.error.codes.ts");
+class BusinessException extends common_1.HttpException {
+    constructor(err) {
+        if (typeof err === 'string') {
+            err = {
+                code: business_error_codes_1.BUSINESS_ERROR_CODE.COMMON,
+                message: err,
+            };
+        }
+        super(err, common_1.HttpStatus.OK);
+    }
+    ;
+    static throwForbidden() {
+        throw new BusinessException({
+            code: business_error_codes_1.BUSINESS_ERROR_CODE.ACCESS_FORBIDDEN,
+            message: 'sorry, 您暂无权限'
+        });
+    }
+    ;
+}
+exports.BusinessException = BusinessException;
+
+
+/***/ }),
+
 /***/ "./apps/low-code-server/src/common/exceptions/http.exception.filter.ts":
 /*!*****************************************************************************!*\
   !*** ./apps/low-code-server/src/common/exceptions/http.exception.filter.ts ***!
@@ -190,12 +274,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpExceptionFilter = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const business_exception_filter_1 = __webpack_require__(/*! ./business.exception.filter */ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts");
 let HttpExceptionFilter = class HttpExceptionFilter {
     catch(exception, host) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
         const status = exception.getStatus();
+        if (exception instanceof business_exception_filter_1.BusinessException) {
+            const error = exception.getResponse();
+            response.status(common_1.HttpStatus.OK).json({
+                data: null,
+                status: error['code'],
+                extra: {},
+                message: error['message'],
+                success: false,
+            });
+            return;
+        }
         response.status(status).json({
             statusCode: status,
             timestamp: new Date().toISOString(),
