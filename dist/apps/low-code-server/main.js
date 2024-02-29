@@ -18,15 +18,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
+var _a, _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppController = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const config_1 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
 const business_exception_filter_1 = __webpack_require__(/*! ./common/exceptions/business.exception.filter */ "./apps/low-code-server/src/common/exceptions/business.exception.filter.ts");
 let AppController = class AppController {
-    constructor(appService) {
+    constructor(appService, configServeice) {
         this.appService = appService;
+        this.configServeice = configServeice;
     }
     getHello() {
         return this.appService.getHello();
@@ -55,6 +57,10 @@ let AppController = class AppController {
         }
         ;
         return this.appService.findAll();
+    }
+    ;
+    getTestName() {
+        return this.configServeice.get('TEST_VALUE').name;
     }
 };
 exports.AppController = AppController;
@@ -92,9 +98,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "findBusinessError", null);
+__decorate([
+    (0, common_1.Get)('getTestName'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppController.prototype, "getTestName", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof app_service_1.AppService !== "undefined" && app_service_1.AppService) === "function" ? _a : Object, typeof (_b = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _b : Object])
 ], AppController);
 
 
@@ -116,14 +128,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AppModule = void 0;
 const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const config_1 = __webpack_require__(/*! @nestjs/config */ "@nestjs/config");
 const app_controller_1 = __webpack_require__(/*! ./app.controller */ "./apps/low-code-server/src/app.controller.ts");
 const app_service_1 = __webpack_require__(/*! ./app.service */ "./apps/low-code-server/src/app.service.ts");
+const index_1 = __webpack_require__(/*! ./utils/index */ "./apps/low-code-server/src/utils/index.ts");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [],
+        imports: [config_1.ConfigModule.forRoot({
+                ignoreEnvFile: true,
+                isGlobal: true,
+                load: [index_1.getConfig],
+            })],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
     })
@@ -370,6 +388,34 @@ exports.generateDocument = generateDocument;
 
 /***/ }),
 
+/***/ "./apps/low-code-server/src/utils/index.ts":
+/*!*************************************************!*\
+  !*** ./apps/low-code-server/src/utils/index.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getConfig = exports.getEnv = void 0;
+const yaml_1 = __webpack_require__(/*! yaml */ "yaml");
+const path = __webpack_require__(/*! path */ "path");
+const fs = __webpack_require__(/*! fs */ "fs");
+const getEnv = () => {
+    return process.env.RUNNING_ENV;
+};
+exports.getEnv = getEnv;
+const getConfig = () => {
+    const environment = (0, exports.getEnv)();
+    const yamlPath = path.join(process.cwd(), `./.config/.${environment}.yaml`);
+    const file = fs.readFileSync(yamlPath, 'utf8');
+    const config = (0, yaml_1.parse)(file);
+    return config;
+};
+exports.getConfig = getConfig;
+
+
+/***/ }),
+
 /***/ "@nestjs/common":
 /*!*********************************!*\
   !*** external "@nestjs/common" ***!
@@ -377,6 +423,16 @@ exports.generateDocument = generateDocument;
 /***/ ((module) => {
 
 module.exports = require("@nestjs/common");
+
+/***/ }),
+
+/***/ "@nestjs/config":
+/*!*********************************!*\
+  !*** external "@nestjs/config" ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = require("@nestjs/config");
 
 /***/ }),
 
@@ -407,6 +463,36 @@ module.exports = require("@nestjs/swagger");
 /***/ ((module) => {
 
 module.exports = require("rxjs/operators");
+
+/***/ }),
+
+/***/ "yaml":
+/*!***********************!*\
+  !*** external "yaml" ***!
+  \***********************/
+/***/ ((module) => {
+
+module.exports = require("yaml");
+
+/***/ }),
+
+/***/ "fs":
+/*!*********************!*\
+  !*** external "fs" ***!
+  \*********************/
+/***/ ((module) => {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ "path":
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/***/ ((module) => {
+
+module.exports = require("path");
 
 /***/ }),
 
