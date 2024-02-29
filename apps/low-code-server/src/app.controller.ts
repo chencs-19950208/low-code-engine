@@ -51,6 +51,7 @@ export class AppController {
 
   @Get('getTestName')
   getTestName() {
+    console.log(this.configServeice.get('TEST_VALUE').name)
     return this.configServeice.get('TEST_VALUE').name;
   }
 }
